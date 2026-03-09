@@ -1,0 +1,20 @@
+{
+    "name": "kerrigan-eq200",
+    "symbol": "krgn",
+    "algorithm": "equihash",
+    "parameters": {
+        "N": 200,
+        "K": 9,
+        "personalization": "ZcashPoW"
+    },
+    "requireShielding": false,
+    "sapling": false,
+    "payFoundersReward": false,
+    "useCoinbasetxn": true,
+    "subsidyMultipleOfSatoshi": 1,
+    "txfee": 0.0001,
+    "explorer": {
+        "txURL": "https://explorer.kerrigan.network/tx/",
+        "blockURL": "https://explorer.kerrigan.network/block/"
+    }
+}

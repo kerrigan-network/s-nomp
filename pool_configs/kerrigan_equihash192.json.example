@@ -1,0 +1,82 @@
+{
+    "enabled": false,
+    "coin": "kerrigan_equihash192.json",
+
+    "address": "",
+    "_comment_address": "a transparent address to send coinbase rewards to.",
+
+    "walletInterval": 2.5,
+    "_comment_walletInterval": "Used to cache coin stats",
+
+    "rewardRecipients": {
+        "": 0.2
+    },
+
+    "tlsOptions": {
+        "enabled": false,
+        "serverKey": "",
+        "serverCert": "",
+        "ca": ""
+    },
+
+    "paymentProcessing": {
+        "enabled": true,
+        "minConf": 100,
+        "paymentMode": "prop",
+        "_comment_paymentMode": "prop, pplnt",
+        "paymentInterval": 120,
+        "minimumPayment": 0.5,
+        "maxBlocksPerPayment": 3,
+        "daemon": {
+            "host": "127.0.0.1",
+            "port": 7301,
+            "user": "rpcuser",
+            "password": "rpcpassword"
+        }
+    },
+
+    "ports": {
+        "3192": {
+            "diff": 0.05,
+            "tls": false,
+            "varDiff": {
+                "minDiff": 0.01,
+                "maxDiff": 10000,
+                "targetTime": 15,
+                "retargetTime": 90,
+                "variancePercent": 30
+            }
+        }
+    },
+
+    "poolId": "main",
+    "_comment_poolId": "use it for region identification: eu, us, asia or keep default if you have one stratum instance for one coin",
+
+    "daemons": [
+        {
+            "host": "127.0.0.1",
+            "port": 7301,
+            "user": "rpcuser",
+            "password": "rpcpassword"
+        }
+    ],
+
+    "p2p": {
+        "enabled": false,
+        "host": "127.0.0.1",
+        "port": 7334,
+        "disableTransactions": true
+    },
+
+    "mposMode": {
+        "enabled": false,
+        "host": "127.0.0.1",
+        "port": 3306,
+        "user": "me",
+        "password": "mypass",
+        "database": "krgn_eq192",
+        "checkPassword": true,
+        "autoCreateWorker": false
+    }
+
+}
