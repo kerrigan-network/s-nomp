@@ -10,6 +10,9 @@
     "requireShielding": false,
     "sapling": false,
     "payFoundersReward": false,
+    "poolOptions": {
+        "confirmations": 10
+    },
     "useCoinbasetxn": true,
     "subsidyMultipleOfSatoshi": 1,
     "txfee": 0.0001,

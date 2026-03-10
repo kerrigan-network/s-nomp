@@ -103,7 +103,8 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var paymentInterval;
 
     function validateAddress (callback){
-        daemon.cmd('validateaddress', [poolOptions.address], function(result) {
+        var rpcMethod = poolOptions.coin.useCoinbasetxn ? 'getaddressinfo' : 'validateaddress';
+        daemon.cmd(rpcMethod, [poolOptions.address], function(result) {
             if (result.error){
                 logger.error(logSystem, logComponent, 'Error with payment processing daemon (validateAddress) ' + JSON.stringify(result.error));
                 callback(true);
@@ -120,7 +121,8 @@ function SetupForPool(logger, poolOptions, setupFinished){
         }, true);
     }
     function validateTAddress (callback) {
-        daemon.cmd('validateaddress', [poolOptions.tAddress], function(result) {
+        var rpcMethod = poolOptions.coin.useCoinbasetxn ? 'getaddressinfo' : 'validateaddress';
+        daemon.cmd(rpcMethod, [poolOptions.tAddress], function(result) {
             if (result.error){
                 logger.error(logSystem, logComponent, 'Error with payment processing daemon (validateTAddress) ' + JSON.stringify(result.error));
                 callback(true);
@@ -719,7 +721,8 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     return ['gettransaction', [r.txHash]];
                 });
                 // get account address (not implemented at this time)
-                batchRPCcommand.push(['getaccount', [poolOptions.address]]);
+                var accountRpc = poolOptions.coin.useCoinbasetxn ? 'getaddressinfo' : 'getaccount';
+                batchRPCcommand.push([accountRpc, [poolOptions.address]]);
 
                 startRPCTimer();
                 daemon.batchCmd(batchRPCcommand, function(error, txDetails){

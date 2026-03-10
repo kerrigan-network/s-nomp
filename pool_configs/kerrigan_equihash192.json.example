@@ -5,6 +5,9 @@
     "address": "",
     "_comment_address": "a transparent address to send coinbase rewards to.",
 
+    "tAddress": "",
+    "_comment_tAddress": "set to same as pool address (Kerrigan does not use shielded transactions).",
+
     "walletInterval": 2.5,
     "_comment_walletInterval": "Used to cache coin stats",
 
