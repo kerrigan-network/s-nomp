@@ -646,14 +646,17 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         var dups = rounds.filter(function(round){ return round.duplicate; });
                         logger.warning(logSystem, logComponent, 'Duplicate pending blocks found: ' + JSON.stringify(dups));
                         // attempt to find the invalid duplicates
+                        // CbTx coins (Kerrigan): use gettransaction+txHash (block hash is X11, not sha256d)
+                        // Standard coins: use getblock+blockHash
+                        var useCbTx = poolOptions.coin.useCoinbasetxn;
                         var rpcDupCheck = dups.map(function(r){
-                            return ['getblock', [r.blockHash]];
+                            return useCbTx ? ['gettransaction', [r.txHash]] : ['getblock', [r.blockHash]];
                         });
                         startRPCTimer();
                         daemon.batchCmd(rpcDupCheck, function(error, blocks){
                             endRPCTimer();
                             if (error || !blocks) {
-                                logger.error(logSystem, logComponent, 'Error with duplicate block check rpc call getblock ' + JSON.stringify(error));
+                                logger.error(logSystem, logComponent, 'Error with duplicate block check rpc call ' + (useCbTx ? 'gettransaction' : 'getblock') + ' ' + JSON.stringify(error));
                                 return;
                             }
                             // look for the invalid duplicate block
@@ -663,22 +666,27 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 if (block && block.result) {
                                     // invalid duplicate submit blocks have negative confirmations
                                     if (block.result.confirmations < 0) {
-                                        logger.warning(logSystem, logComponent, 'Remove invalid duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                        logger.warning(logSystem, logComponent, 'Remove invalid duplicate block ' + (useCbTx ? 'h=' + dups[i].height : block.result.height + ' > ' + block.result.hash));
                                         // move from blocksPending to blocksDuplicate...
                                         invalidBlocks.push(['smove', coin + ':blocksPending', coin + ':blocksDuplicate', dups[i].serialized]);
                                     } else {
                                         // block must be valid, make sure it is unique
-                                        if (validBlocks.hasOwnProperty(dups[i].blockHash)) {
+                                        var dupKey = useCbTx ? dups[i].height : dups[i].blockHash;
+                                        if (validBlocks.hasOwnProperty(dupKey)) {
                                             // not unique duplicate block
-                                            logger.warning(logSystem, logComponent, 'Remove non-unique duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                            logger.warning(logSystem, logComponent, 'Remove non-unique duplicate block ' + (useCbTx ? 'h=' + dups[i].height : block.result.height + ' > ' + block.result.hash));
                                             // move from blocksPending to blocksDuplicate...
                                             invalidBlocks.push(['smove', coin + ':blocksPending', coin + ':blocksDuplicate', dups[i].serialized]);
                                         } else {
                                             // keep unique valid block
-                                            validBlocks[dups[i].blockHash] = dups[i].serialized;
-                                            logger.debug(logSystem, logComponent, 'Keep valid duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                            validBlocks[dupKey] = dups[i].serialized;
+                                            logger.debug(logSystem, logComponent, 'Keep valid duplicate block ' + (useCbTx ? 'h=' + dups[i].height : block.result.height + ' > ' + block.result.hash));
                                         }
                                     }
+                                } else if (useCbTx && block && block.error) {
+                                    // CbTx: tx not found means orphaned block
+                                    logger.warning(logSystem, logComponent, 'Remove orphaned duplicate block h=' + dups[i].height);
+                                    invalidBlocks.push(['smove', coin + ':blocksPending', coin + ':blocksDuplicate', dups[i].serialized]);
                                 }
                             });
                             // filter out all duplicates to prevent double payments
